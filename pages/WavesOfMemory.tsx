@@ -43,7 +43,6 @@ const WavesOfMemory: React.FC = () => {
     }
   };
 
-  // 입자 효과 생성
   const particles = Array.from({ length: 20 }).map((_, i) => ({
     id: i,
     left: `${Math.random() * 100}%`,
@@ -60,7 +59,6 @@ const WavesOfMemory: React.FC = () => {
           className="fixed inset-0 z-[60] flex flex-col items-center justify-center overflow-hidden transition-all duration-1000 bg-black"
           onClick={nextStep}
         >
-          {/* 배경 이미지 (필터 적용) */}
           <div 
             className="absolute inset-0 transition-all duration-[2000ms] ease-in-out scale-110"
             style={{ 
@@ -72,7 +70,6 @@ const WavesOfMemory: React.FC = () => {
             }}
           />
 
-          {/* 데이터 입자 레이어 (2단계에서 더 강조) */}
           <div className={`absolute inset-0 transition-opacity duration-1000 ${step === 1 ? 'opacity-100' : 'opacity-30'}`}>
             {particles.map(p => (
               <div 
@@ -90,7 +87,6 @@ const WavesOfMemory: React.FC = () => {
             ))}
           </div>
 
-          {/* 텍스트 콘텐츠 */}
           <div className="relative z-10 max-w-3xl px-8 text-center text-white">
             <div key={step} className="fade-in space-y-6">
               <span className="inline-block px-4 py-1 border border-white/30 rounded-full text-xs font-bold tracking-widest text-sky-200 uppercase">
@@ -110,56 +106,43 @@ const WavesOfMemory: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* AI 프롬프트 힌트 (디테일) */}
-          <div className="absolute bottom-8 left-8 text-[10px] text-white/20 font-mono hidden md:block uppercase tracking-tighter">
-            AI Vision Translation: {sequences[step].prompt}
-          </div>
         </div>
       )}
 
       {/* 실제 연표 섹션 */}
       <div 
         ref={timelineRef}
-        className={`p-6 pt-[118px] pb-40 md:p-12 md:pt-[150px] md:pb-32 transition-opacity duration-1000 ${isOpeningFinished ? 'opacity-100' : 'opacity-0'}`}
+        className={`p-4 pt-[118px] pb-40 md:p-12 md:pt-[150px] md:pb-32 transition-opacity duration-1000 ${isOpeningFinished ? 'opacity-100' : 'opacity-0'}`}
       >
         <div className="max-w-4xl mx-auto">
-          <header className="mb-[90px] text-center">
-            <span className="text-sky-400 font-bold mb-2 block animate-fade-in">MEMORY TIMELINE</span>
-            <h1 className="text-3xl md:text-6xl text-sky-800 mb-4 font-jua">파도의 기억</h1>
-            <p className="text-sky-600 text-lg">출렁이는 바다 물결처럼 흐르는 부산의 역사를 따라가보세요.</p>
+          <header className="mb-16 text-center">
+            <span className="text-sky-400 font-bold mb-2 block animate-fade-in tracking-widest">MEMORY TIMELINE</span>
+            <h1 className="text-5xl md:text-7xl text-sky-900 mb-6 font-jua">파도의 기억</h1>
+            <p className="text-sky-700 text-xl md:text-2xl font-medium">출렁이는 바다 물결처럼 흐르는 부산의 역사를 따라가보세요.</p>
           </header>
 
-          <div className="relative border-l-4 border-sky-200 ml-4 md:ml-0 md:flex md:flex-col md:items-center md:border-l-0">
+          <div className="relative border-l-8 border-sky-100 ml-6 md:ml-0 md:flex md:flex-col md:items-center md:border-l-0">
             {TIMELINE_DATA.map((event, index) => (
               <div 
                 key={index} 
-                className={`mb-16 relative w-full md:w-1/2 group ${
+                className={`mb-4 relative w-full md:w-[48%] group ${
                   index % 2 === 0 ? 'md:ml-auto md:pl-12' : 'md:mr-auto md:pr-12'
                 }`}
               >
                 {/* Dot */}
-                <div className="absolute top-0 -left-[28px] md:left-auto md:right-auto w-10 h-10 bg-white rounded-full border-4 border-sky-400 shadow-xl z-10 
-                  md:left-1/2 md:-translate-x-1/2 transition-transform group-hover:scale-125 duration-300">
-                    <div className="w-full h-full flex items-center justify-center text-xs font-bold text-sky-500">
-                      {index + 1}
-                    </div>
+                <div className="absolute top-1/2 -translate-y-1/2 -left-[44px] md:left-auto md:right-auto w-12 h-12 bg-white rounded-full border-4 border-sky-500 shadow-xl z-10 
+                  md:left-1/2 md:-translate-x-1/2 transition-transform group-hover:scale-110 duration-300 flex items-center justify-center">
+                    <span className="text-lg font-bold text-sky-600">{index + 1}</span>
                   </div>
                 
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-sky-50 hover:border-sky-200 transition-all hover:-translate-y-2">
-                  <span className="inline-block px-4 py-1 bg-sky-100 text-sky-700 rounded-full text-sm font-bold mb-4">
-                    {event.year}
-                  </span>
-                  <h3 className="text-2xl font-jua text-slate-800 mb-4">{event.title}</h3>
-                  <div className="relative overflow-hidden rounded-2xl mb-5 aspect-video">
-                    <img 
-                      src={event.imageUrl} 
-                      alt={event.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="bg-white p-8 rounded-[2.5rem] shadow-md border-2 border-transparent hover:border-sky-300 transition-all hover:shadow-2xl">
+                  <div className="flex items-center gap-4 mb-4">
+                    <span className="inline-block px-5 py-2 bg-sky-600 text-white rounded-2xl text-xl font-bold shadow-sm">
+                      {event.year}
+                    </span>
                   </div>
-                  <p className="text-slate-600 leading-relaxed">
+                  <h3 className="text-3xl md:text-4xl font-jua text-slate-900 mb-4 leading-tight">{event.title}</h3>
+                  <p className="text-slate-700 text-lg md:text-xl leading-relaxed font-medium">
                     {event.description}
                   </p>
                 </div>
@@ -167,7 +150,7 @@ const WavesOfMemory: React.FC = () => {
             ))}
             
             {/* Timeline Connector for Desktop */}
-            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-sky-400 via-sky-200 to-transparent -translate-x-1/2 -z-0"></div>
+            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-2 bg-sky-100 -translate-x-1/2 -z-0"></div>
           </div>
         </div>
       </div>

@@ -4,31 +4,59 @@ import { TimelineEvent } from './types';
 export const TIMELINE_DATA: TimelineEvent[] = [
   {
     year: "1876년",
-    title: "부산항의 문이 열리다",
-    description: "우리나라 최초의 근대 무역항으로 부산항이 문을 열었어요. 새로운 물결이 밀려오기 시작했답니다.",
+    title: "부산항의 문이 활짝 열리다",
+    description: "대한민국 최초의 근대 무역항으로 부산항이 역사적인 개항을 맞이했습니다. 서구 문물과 새로운 세상의 파도가 부산의 앞바다를 통해 밀려들어오기 시작한 순간이었죠.",
     category: "opening",
-    imageUrl: "https://picsum.photos/seed/busan1/400/300"
+    imageUrl: ""
+  },
+  {
+    year: "1924년",
+    title: "도심을 가르는 전차와 버스",
+    description: "부산 시내에 전차와 버스가 등장하며 현대적인 도시의 기틀이 마련되었습니다. 덜컹거리는 전차 소리는 근대화를 향한 부산의 힘찬 발걸음이자 활기찬 도시의 상징이었습니다.",
+    category: "opening",
+    imageUrl: ""
   },
   {
     year: "1950년",
-    title: "피란수도, 부산의 품",
-    description: "6.25 전쟁 당시 부산은 전국의 피란민을 따뜻하게 품어준 임시 수도였어요. 아픔 속에서도 희망을 키웠죠.",
+    title: "민족의 아픔을 품은 피란수도",
+    description: "6.25 전쟁이라는 거대한 시련 속에서 부산은 대한민국 임시 수도로서 전국의 피란민들을 따뜻하게 품어주었습니다. 40계단과 국제시장은 그 시절의 애환과 끈질긴 생명력이 담긴 역사의 현장입니다.",
     category: "war",
-    imageUrl: "https://picsum.photos/seed/busan2/400/300"
+    imageUrl: ""
   },
   {
-    year: "1960~80년",
-    title: "대한민국 수출의 심장",
-    description: "신발, 섬유 공장들이 활기차게 돌아가며 우리나라 경제 성장의 엔진 역할을 톡톡히 해냈어요.",
+    year: "1963년",
+    title: "부산직할시 승격의 영광",
+    description: "경상남도에서 분리되어 대한민국 두 번째 직할시로 승격되었습니다. 이는 부산이 단순한 항구 도시를 넘어 국가의 핵심 거점이자 거대 메트로폴리스로 도약했음을 알리는 신호탄이었습니다.",
     category: "growth",
-    imageUrl: "https://picsum.photos/seed/busan3/400/300"
+    imageUrl: ""
+  },
+  {
+    year: "1980년대",
+    title: "대한민국 경제를 이끈 수출 심장",
+    description: "전국의 신발과 섬유 수출 물량이 부산항을 통해 세계로 뻗어나갔습니다. 수많은 노동자들의 땀방울이 모여 '한강의 기적'을 뒷받침하는 든든한 경제 엔진 역할을 훌륭히 수행했습니다.",
+    category: "growth",
+    imageUrl: ""
+  },
+  {
+    year: "1996년",
+    title: "세계적인 영화의 도시, BIFF 탄생",
+    description: "아시아 최초의 국제영화제인 부산국제영화제가 개최되었습니다. 해운대와 남포동 거리는 영화인들과 관객들의 열기로 가득 찼고, 부산은 전 세계가 주목하는 문화와 예술의 중심지로 등극했습니다.",
+    category: "growth",
+    imageUrl: ""
+  },
+  {
+    year: "2005년",
+    title: "정상들이 모인 누리마루 APEC",
+    description: "세계 경제 정상들이 동백섬 누리마루에 모여 아시아-태평양의 미래를 논의했습니다. 가장 한국적인 정서와 현대적인 감각이 어우러진 부산의 아름다움을 전 세계에 다시 한번 각인시켰습니다.",
+    category: "growth",
+    imageUrl: ""
   },
   {
     year: "2030년",
-    title: "글로벌 허브 도시를 향해",
-    description: "세계로 뻗어가는 엑스포 유전과 함께, 모두가 연결되는 아름다운 미래의 항구를 그려봅니다.",
+    title: "글로벌 허브 도시로의 거대한 비상",
+    description: "이제 부산은 세계 박람회 유치 도전과 가덕도 신공항 건설을 통해 명실상부한 글로벌 물류, 문화 허브로 나아가고 있습니다. 우리 앞에 펼쳐진 미래의 항구는 더 넓고 푸른 희망으로 가득 차 있습니다.",
     category: "future",
-    imageUrl: "https://picsum.photos/seed/busan4/400/300"
+    imageUrl: ""
   }
 ];
 
