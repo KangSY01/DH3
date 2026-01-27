@@ -1,156 +1,88 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { TIMELINE_DATA } from '../constants';
 
 const WavesOfMemory: React.FC = () => {
-  const [step, setStep] = useState(0);
   const [isOpeningFinished, setIsOpeningFinished] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  // 시퀀스 데이터
-  const sequences = [
-    {
-      title: "1950년, 삶의 마지막 항구",
-      narration: "이곳은 누군가에겐 삶의 마지막 항구였고, 누군가에겐 새로운 시작의 땅이었습니다. 거친 파도 속에서도 사람들은 서로의 온기로 불을 지피고, 희망이라는 이름의 땀방울을 흘렸죠.",
-      img: "https://images.unsplash.com/photo-1542385151-efd9000785a0?q=80&w=1600&auto=format&fit=crop",
-      filter: "grayscale(1) sepia(0.2) contrast(1.2)",
-      prompt: "1950년대 중반, 흑백 사진 속 부산 국제시장 골목의 피란민들"
-    },
-    {
-      title: "기억의 번역, 변화의 순간",
-      narration: "시간의 베틀 위에서, AI는 과거의 실을 현재의 색으로 물들입니다. 수많은 기억의 파편들이 모여, 오늘날 부산의 모습으로 피어나는 찬란한 찰나입니다.",
-      img: "https://images.unsplash.com/photo-1570114001925-fb391a27e025?q=80&w=1600&auto=format&fit=crop",
-      filter: "grayscale(0.5) contrast(1.1)",
-      prompt: "흑백 인물들이 서서히 현대적 복장과 컬러로 변모하는 모핑 현장"
-    },
-    {
-      title: "2026년, 역동적인 내일",
-      narration: "과거의 땀과 열정은 오늘날의 역동적인 에너지로 다시 태어났습니다. 우리는 모두, 시간이라는 거대한 파도를 함께 타고 있는 항해자들입니다.",
-      img: "https://images.unsplash.com/photo-1610986751713-399a81878be7?q=80&w=1600&auto=format&fit=crop",
-      filter: "none",
-      prompt: "활기찬 광안대교 야경과 미래 지향적인 부산 도심 풍경"
-    }
-  ];
-
-  const nextStep = () => {
-    if (step < sequences.length - 1) {
-      setStep(step + 1);
-    } else {
-      setIsOpeningFinished(true);
-      setTimeout(() => {
-        timelineRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
+  const startArchive = () => {
+    setIsOpeningFinished(true);
+    setTimeout(() => {
+      timelineRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
-  const particles = Array.from({ length: 20 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    size: `${Math.random() * 8 + 2}px`,
-    duration: `${Math.random() * 5 + 3}s`,
-    delay: `${Math.random() * 2}s`
-  }));
-
   return (
-    <div className="min-h-screen bg-sky-50 transition-all duration-1000">
-      {/* 오프닝 시퀀스 레이어 */}
+    <div className="min-h-screen bg-[#0a192f] transition-all duration-1000">
+      {/* 오프닝 시퀀스: 인문학적 깊이가 느껴지는 텍스트 중심 */}
       {!isOpeningFinished && (
         <div 
-          className="fixed inset-0 z-[60] flex flex-col items-center justify-center overflow-hidden transition-all duration-1000 bg-black"
-          onClick={nextStep}
+          className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-[#0a192f] cursor-pointer"
+          onClick={startArchive}
         >
-          <div 
-            className="absolute inset-0 transition-all duration-[2000ms] ease-in-out scale-110"
-            style={{ 
-              backgroundImage: `url(${sequences[step].img})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: sequences[step].filter,
-              opacity: 0.6
-            }}
-          />
-
-          <div className={`absolute inset-0 transition-opacity duration-1000 ${step === 1 ? 'opacity-100' : 'opacity-30'}`}>
-            {particles.map(p => (
-              <div 
-                key={p.id}
-                className="particle"
-                style={{
-                  left: p.left,
-                  width: p.size,
-                  height: p.size,
-                  animationDuration: p.duration,
-                  animationDelay: p.delay,
-                  bottom: '-10px'
-                }}
-              />
-            ))}
-          </div>
-
-          <div className="relative z-10 max-w-3xl px-8 text-center text-white">
-            <div key={step} className="fade-in space-y-6">
-              <span className="inline-block px-4 py-1 border border-white/30 rounded-full text-xs font-bold tracking-widest text-sky-200 uppercase">
-                Step {step + 1}
-              </span>
-              <h2 className="text-4xl md:text-6xl font-jua text-white drop-shadow-2xl">
-                {sequences[step].title}
-              </h2>
-              <p className="text-lg md:text-2xl leading-relaxed text-slate-100 font-medium drop-shadow-lg">
-                {sequences[step].narration}
-              </p>
-              
-              <div className="pt-12">
-                <p className="text-sm text-white/50 animate-pulse">
-                  {step < 2 ? "화면을 클릭하여 시간을 이동하세요" : "모험을 시작하려면 클릭하세요"}
-                </p>
-              </div>
+          <div className="max-w-4xl px-8 text-center fade-up">
+            <h2 className="text-[#c5a059] text-sm tracking-[0.6em] mb-12 font-medium">PROLOGUE</h2>
+            <h1 className="text-4xl md:text-7xl font-serif font-black text-white mb-10 leading-tight">
+              기억은 파도처럼 밀려와<br/>역사의 문장이 된다
+            </h1>
+            <p className="text-slate-400 text-xl md:text-2xl leading-relaxed font-light max-w-2xl mx-auto">
+              우리는 시간의 기록자입니다. 부산이 겪어온 수많은 계절을<br/>
+              디지털의 선으로 다시 잇고 기억합니다.
+            </p>
+            <div className="mt-20 flex flex-col items-center gap-4">
+              <div className="w-0.5 h-16 bg-gradient-to-b from-[#c5a059] to-transparent"></div>
+              <span className="text-[#c5a059] text-xs tracking-[0.3em] animate-pulse">ENTER THE ARCHIVE</span>
             </div>
           </div>
         </div>
       )}
 
-      {/* 실제 연표 섹션 */}
+      {/* 타임라인 아카이브 섹션 */}
       <div 
         ref={timelineRef}
-        className={`p-4 pt-[118px] pb-40 md:p-12 md:pt-[150px] md:pb-32 transition-opacity duration-1000 ${isOpeningFinished ? 'opacity-100' : 'opacity-0'}`}
+        className={`p-6 pt-[140px] pb-40 md:p-20 md:pt-[180px] transition-all duration-1000 ${isOpeningFinished ? 'opacity-100' : 'opacity-0 scale-95'}`}
       >
-        <div className="max-w-4xl mx-auto">
-          <header className="mb-16 text-center">
-            <span className="text-sky-400 font-bold mb-2 block animate-fade-in tracking-widest">MEMORY TIMELINE</span>
-            <h1 className="text-5xl md:text-7xl text-sky-900 mb-6 font-jua">파도의 기억</h1>
-            <p className="text-sky-700 text-xl md:text-2xl font-medium">출렁이는 바다 물결처럼 흐르는 부산의 역사를 따라가보세요.</p>
+        <div className="max-w-5xl mx-auto">
+          <header className="mb-24 text-left border-l-2 border-[#c5a059] pl-8">
+            <span className="text-[#c5a059] text-xs font-bold mb-4 block tracking-[0.5em]">HISTORICAL CHRONOLOGY</span>
+            <h1 className="text-6xl md:text-9xl text-white mb-8 font-serif font-black tracking-tighter">파도의 기억</h1>
+            <p className="text-slate-400 text-xl md:text-2xl font-light max-w-2xl">부산의 시간을 수놓은 주요 사건들을 고고학적 시각으로 기록한 타임라인입니다.</p>
           </header>
 
-          <div className="relative border-l-8 border-sky-100 ml-6 md:ml-0 md:flex md:flex-col md:items-center md:border-l-0">
+          <div className="relative border-l border-white/10 ml-4 md:ml-0 md:border-l-0">
             {TIMELINE_DATA.map((event, index) => (
               <div 
                 key={index} 
-                className={`mb-4 relative w-full md:w-[48%] group ${
-                  index % 2 === 0 ? 'md:ml-auto md:pl-12' : 'md:mr-auto md:pr-12'
-                }`}
+                className={`relative w-full mb-2 md:mb-4 group ${
+                  index % 2 === 0 ? 'md:ml-auto md:pl-20' : 'md:mr-auto md:pr-20'
+                } md:w-[50%]`}
               >
-                {/* Dot */}
-                <div className="absolute top-1/2 -translate-y-1/2 -left-[44px] md:left-auto md:right-auto w-12 h-12 bg-white rounded-full border-4 border-sky-500 shadow-xl z-10 
-                  md:left-1/2 md:-translate-x-1/2 transition-transform group-hover:scale-110 duration-300 flex items-center justify-center">
-                    <span className="text-lg font-bold text-sky-600">{index + 1}</span>
-                  </div>
+                {/* 인덱스 번호 및 노드 */}
+                <div className="absolute top-8 -left-[25px] md:left-auto md:right-auto md:left-1/2 md:-translate-x-1/2 flex flex-col items-center">
+                  <div className="w-3 h-3 bg-[#c5a059] rotate-45 group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="hidden md:block w-px h-full bg-white/5 flex-grow"></div>
+                </div>
                 
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-md border-2 border-transparent hover:border-sky-300 transition-all hover:shadow-2xl">
-                  <div className="flex items-center gap-4 mb-4">
-                    <span className="inline-block px-5 py-2 bg-sky-600 text-white rounded-2xl text-xl font-bold shadow-sm">
+                <div className="bg-[#112240]/40 p-8 md:p-12 hover:bg-[#112240] transition-all border-b border-white/5 group-hover:border-[#c5a059]/30">
+                  <div className="flex items-baseline gap-6 mb-4">
+                    <span className="text-[#c5a059] text-4xl md:text-6xl font-serif font-black tracking-tighter">
                       {event.year}
                     </span>
+                    <div className="h-px bg-[#c5a059]/20 flex-grow"></div>
                   </div>
-                  <h3 className="text-3xl md:text-4xl font-jua text-slate-900 mb-4 leading-tight">{event.title}</h3>
-                  <p className="text-slate-700 text-lg md:text-xl leading-relaxed font-medium">
+                  <h3 className="text-3xl md:text-5xl font-serif text-white mb-6 leading-tight group-hover:translate-x-2 transition-transform">
+                    {event.title}
+                  </h3>
+                  <p className="text-slate-400 text-lg md:text-2xl leading-relaxed font-light tracking-tight group-hover:text-slate-200 transition-colors">
                     {event.description}
                   </p>
                 </div>
               </div>
             ))}
             
-            {/* Timeline Connector for Desktop */}
-            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-2 bg-sky-100 -translate-x-1/2 -z-0"></div>
+            {/* 중앙 수직선 (데스크탑 전용) */}
+            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#c5a059]/50 via-white/5 to-transparent -translate-x-1/2 -z-10"></div>
           </div>
         </div>
       </div>

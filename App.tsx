@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import WavesOfMemory from './pages/WavesOfMemory';
 import TreasureHunt from './pages/MarketGame';
@@ -9,25 +9,28 @@ import FutureHarbor from './pages/FutureHarbor';
 const Navigation = () => {
   const location = useLocation();
   const menuItems = [
-    { path: '/', label: '홈', icon: '🏠' },
-    { path: '/waves', label: '파도의 기억', icon: '🌊' },
-    { path: '/market', label: '부기와 보물찾기', icon: '🧭' },
-    { path: '/voice', label: '부산의 목소리', icon: '👴' },
-    { path: '/harbor', label: '미래의 항구', icon: '⚓' },
+    { path: '/', label: 'HOME', icon: '🏛️' },
+    { path: '/waves', label: 'TIMELINE', icon: '⏳' },
+    { path: '/market', label: 'EXPLORE', icon: '🔍' },
+    { path: '/voice', label: 'ARCHIVE', icon: '🎙️' },
+    { path: '/harbor', label: 'FUTURE', icon: '✨' },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-100 px-4 py-3 flex justify-around items-center z-50 md:top-0 md:bottom-auto md:border-b md:border-t-0">
+    <nav className="fixed bottom-0 left-0 right-0 bg-[#0a192f]/90 backdrop-blur-xl border-t border-white/10 px-6 py-4 flex justify-around items-center z-50 md:top-0 md:bottom-auto md:border-b md:border-t-0">
       {menuItems.map((item) => (
         <Link
           key={item.path}
           to={item.path}
-          className={`flex flex-col items-center p-2 rounded-xl transition-all ${
-            location.pathname === item.path ? 'bg-sky-100 text-sky-600 scale-105' : 'text-slate-500 hover:bg-slate-50'
+          className={`flex flex-col items-center group transition-all ${
+            location.pathname === item.path ? 'text-[#c5a059]' : 'text-slate-400 hover:text-white'
           }`}
         >
-          <span className="text-2xl mb-1">{item.icon}</span>
-          <span className="text-xs font-jua">{item.label}</span>
+          <span className="text-xl mb-1 group-hover:scale-110 transition-transform">{item.icon}</span>
+          <span className="text-[10px] tracking-[0.2em] font-medium">{item.label}</span>
+          {location.pathname === item.path && (
+            <div className="absolute -bottom-1 w-4 h-0.5 bg-[#c5a059] md:bottom-1"></div>
+          )}
         </Link>
       ))}
     </nav>
@@ -36,37 +39,35 @@ const Navigation = () => {
 
 const HomePage = () => {
   return (
-    <div className="min-h-screen wave-bg flex flex-col items-center justify-center p-6 pt-[118px] pb-40 md:pt-[182px] md:pb-24">
-      <div className="text-center mb-[60px] animate-bounce">
-        <h1 className="text-4xl md:text-6xl text-sky-800 mb-4 tracking-tighter font-jua">부산역사 보물상자</h1>
-        <p className="text-sky-600 font-medium">영도 할배와 함께하는 신나는 역사 여행!</p>
+    <div className="min-h-screen archive-bg flex flex-col items-center justify-center p-6 pt-[118px] pb-40 md:pt-[182px] md:pb-24">
+      <div className="text-center mb-20 fade-up">
+        <h2 className="text-[#c5a059] text-sm tracking-[0.4em] mb-4 font-medium">BUSAN DIGITAL HUMANITIES</h2>
+        <h1 className="text-5xl md:text-8xl text-white mb-6 font-serif font-black tracking-tight leading-tight">
+          부산역사<br/><span className="text-[#c5a059]">보물상자</span>
+        </h1>
+        <div className="w-24 h-1 bg-[#c5a059] mx-auto mb-8"></div>
+        <p className="text-slate-400 text-lg md:text-xl font-light tracking-wide">영도 할배의 기록으로 읽는 부산의 시간과 공간</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-6 w-full max-w-2xl">
-        <Link to="/waves" className="pastel-blue p-8 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center">
-          <span className="text-5xl mb-4">🌊</span>
-          <h2 className="text-xl font-jua">파도의 기억</h2>
-          <p className="text-sm text-slate-500 text-center mt-2">시간을 따라 걷는 부산 연표</p>
-        </Link>
-        <Link to="/market" className="pastel-yellow p-8 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center">
-          <span className="text-5xl mb-4">🧭</span>
-          <h2 className="text-xl font-jua">부기와 보물찾기</h2>
-          <p className="text-sm text-slate-500 text-center mt-2">지도를 따라 떠나는 퀴즈 여행</p>
-        </Link>
-        <Link to="/voice" className="pastel-pink p-8 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center">
-          <span className="text-5xl mb-4">👴</span>
-          <h2 className="text-xl font-jua">부산의 목소리</h2>
-          <p className="text-sm text-slate-500 text-center mt-2">영도 할배의 AI 도슨트</p>
-        </Link>
-        <Link to="/harbor" className="pastel-green p-8 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center">
-          <span className="text-5xl mb-4">⚓</span>
-          <h2 className="text-xl font-jua">미래의 항구</h2>
-          <p className="text-sm text-slate-500 text-center mt-2">함께 그리는 내일의 부산</p>
-        </Link>
-      </div>
-
-      <div className="mt-12 text-center text-slate-500 max-w-md bg-white/30 p-6 rounded-2xl backdrop-blur-sm">
-        <p className="text-sm italic">"부산의 역사는 당신의 오늘과 연결되어 있습니다."</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4">
+        {[
+          { path: '/waves', title: '파도의 기억', desc: '역사적 타임라인 아카이브', icon: '⏳' },
+          { path: '/market', title: '부기와 탐험', desc: '지리적 기록물 큐레이션', icon: '🔍' },
+          { path: '/voice', title: '부산의 목소리', desc: 'AI 도슨트 구술 기록', icon: '🎙️' },
+          { path: '/harbor', title: '미래의 항구', desc: '시민 참여형 미래 설계', icon: '✨' }
+        ].map((item, idx) => (
+          <Link 
+            key={idx}
+            to={item.path} 
+            className="group relative bg-[#112240] p-10 rounded-sm border border-white/5 hover:border-[#c5a059]/50 transition-all overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 p-4 text-4xl opacity-10 group-hover:opacity-30 transition-opacity">
+              {item.icon}
+            </div>
+            <h2 className="text-2xl font-serif text-white mb-2 group-hover:text-[#c5a059] transition-colors">{item.title}</h2>
+            <p className="text-slate-500 text-sm font-light tracking-tight">{item.desc}</p>
+          </Link>
+        ))}
       </div>
     </div>
   );
@@ -75,7 +76,7 @@ const HomePage = () => {
 const App = () => {
   return (
     <HashRouter>
-      <div className="flex flex-col min-h-screen overflow-x-hidden">
+      <div className="flex flex-col min-h-screen">
         <div className="flex-grow">
           <Routes>
             <Route path="/" element={<HomePage />} />
