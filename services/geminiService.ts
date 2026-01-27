@@ -38,19 +38,19 @@ export class GeminiService {
       const ai = this.getClient();
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: `부산의 명소 '${placeName}'에 대해 구글 검색을 통해 최신 정보, 역사적 배경, 그리고 현재 방문객들에게 유용한 팁을 알려줘.`,
+        contents: `부산의 명소 '${placeName}'에 대한 최신 소식, 역사적 배경, 방문객들이 알아야 할 꿀팁과 대략적인 정보를 요약해서 알려줘.`,
         config: {
           tools: [{ googleSearch: {} }],
         },
       });
 
       const text = response.text || "";
-      // Search Grounding 결과에서 웹 URL 추출
+      // Search Grounding 결과에서 웹 URL 추출 (MUST ALWAYS)
       const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
       const links = chunks
         .filter(chunk => chunk.web)
         .map(chunk => ({
-          title: chunk.web?.title || "출처 확인하기",
+          title: chunk.web?.title || "더 자세히 알아보기",
           uri: chunk.web?.uri || ""
         }))
         .filter(link => link.uri !== "");
@@ -62,6 +62,7 @@ export class GeminiService {
     }
   }
 
+  // 기존 Maps Grounding 함수 (필요 시 유지)
   async getPlaceGrounding(placeName: string) {
     try {
       const ai = this.getClient();
