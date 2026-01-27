@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import WavesOfMemory from './pages/WavesOfMemory';
-import TreasureHunt from './pages/MarketGame'; // 파일명은 유지하되 내용은 보물찾기로 변경
+import TreasureHunt from './pages/MarketGame';
 import VoiceOfBusan from './pages/VoiceOfBusan';
 import FutureHarbor from './pages/FutureHarbor';
 
@@ -37,12 +37,12 @@ const Navigation = () => {
 const HomePage = () => {
   return (
     <div className="min-h-screen wave-bg flex flex-col items-center justify-center p-6 pt-[118px] pb-40 md:pt-[182px] md:pb-24">
-      <div className="text-center mb-[90px] animate-bounce">
-        <h1 className="text-4xl md:text-6xl text-sky-800 mb-4 tracking-tighter">부산역사 보물상자</h1>
+      <div className="text-center mb-[60px] animate-bounce">
+        <h1 className="text-4xl md:text-6xl text-sky-800 mb-4 tracking-tighter font-jua">부산역사 보물상자</h1>
         <p className="text-sky-600 font-medium">영도 할배와 함께하는 신나는 역사 여행!</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-6 w-full max-w-2xl mb-20">
+      <div className="grid grid-cols-2 gap-6 w-full max-w-2xl">
         <Link to="/waves" className="pastel-blue p-8 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center">
           <span className="text-5xl mb-4">🌊</span>
           <h2 className="text-xl font-jua">파도의 기억</h2>
@@ -65,9 +65,8 @@ const HomePage = () => {
         </Link>
       </div>
 
-      <div className="mt-8 text-center text-slate-500 max-w-md bg-white/30 p-6 rounded-2xl backdrop-blur-sm">
-        <p className="text-sm">"부산의 역사는 당신의 오늘과 연결되어 있습니다."</p>
-        <p className="text-xs mt-2 italic font-semibold">- 디지털 인문학 큐레이터 -</p>
+      <div className="mt-12 text-center text-slate-500 max-w-md bg-white/30 p-6 rounded-2xl backdrop-blur-sm">
+        <p className="text-sm italic">"부산의 역사는 당신의 오늘과 연결되어 있습니다."</p>
       </div>
     </div>
   );
@@ -76,7 +75,7 @@ const HomePage = () => {
 const App = () => {
   return (
     <HashRouter>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen overflow-x-hidden">
         <div className="flex-grow">
           <Routes>
             <Route path="/" element={<HomePage />} />

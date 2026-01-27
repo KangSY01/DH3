@@ -73,16 +73,26 @@ const TreasureHunt: React.FC = () => {
   const [collected, setCollected] = useState<string[]>([]);
   const [groundingInfo, setGroundingInfo] = useState<{ text: string, links: { title: string, uri: string }[] } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const mapRef = useRef<any>(null);
+  const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
-  // 지도 초기화 및 마커 배치
+  // 지도 초기화 및 관리
   useEffect(() => {
-    if (gameState === 'map' && !mapRef.current) {
+    if (gameState === 'map' && mapContainerRef.current && !mapInstanceRef.current) {
       const L = (window as any).L;
-      if (!L) return;
+      if (!L) {
+        console.error('Leaflet library is not loaded');
+        return;
+      }
 
-      const map = L.map('map', {
+      // 기존 지도 객체가 있다면 제거
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+
+      const map = L.map(mapContainerRef.current, {
         center: [35.12, 129.08],
         zoom: 12,
         zoomControl: false,
@@ -95,10 +105,12 @@ const TreasureHunt: React.FC = () => {
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+      // 마커 생성 로직
+      const markers: any[] = [];
       SPOTS.forEach(spot => {
         const isCollected = collected.includes(spot.id);
         const iconHtml = `
-          <div class="flex flex-col items-center marker-container" id="marker-${spot.id}">
+          <div class="flex flex-col items-center" id="marker-${spot.id}">
             <div class="relative w-10 h-10 flex items-center justify-center bg-white border-4 ${isCollected ? 'border-emerald-500 shadow-emerald-200' : 'border-sky-500 shadow-sky-200'} rounded-full shadow-xl transition-all hover:scale-125">
               <span class="text-xl">${isCollected ? '⭐' : spot.icon}</span>
               <div class="absolute -bottom-1 w-2 h-2 rotate-45 ${isCollected ? 'bg-emerald-500' : 'bg-sky-500'}"></div>
@@ -116,44 +128,26 @@ const TreasureHunt: React.FC = () => {
 
         const marker = L.marker([spot.lat, spot.lng], { icon: customIcon }).addTo(map);
         marker.on('click', () => handleSpotClick(spot));
-        markersRef.current.push({ id: spot.id, marker });
+        markers.push({ id: spot.id, marker });
       });
 
-      mapRef.current = map;
-    }
+      markersRef.current = markers;
+      mapInstanceRef.current = map;
 
-    if (mapRef.current && gameState === 'map') {
-      markersRef.current.forEach(({ id, marker }) => {
-        const spot = SPOTS.find(s => s.id === id);
-        if (!spot) return;
-        const isCollected = collected.includes(id);
-        const L = (window as any).L;
-        
-        marker.setIcon(L.divIcon({
-          html: `
-            <div class="flex flex-col items-center marker-container">
-              <div class="relative w-10 h-10 flex items-center justify-center bg-white border-4 ${isCollected ? 'border-emerald-500 shadow-emerald-200' : 'border-sky-500 shadow-sky-200'} rounded-full shadow-xl">
-                <span class="text-xl">${isCollected ? '⭐' : spot.icon}</span>
-                <div class="absolute -bottom-1 w-2 h-2 rotate-45 ${isCollected ? 'bg-emerald-500' : 'bg-sky-500'}"></div>
-              </div>
-              <div class="mt-1 bg-white/90 px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm whitespace-nowrap border border-slate-100">${spot.name}</div>
-            </div>
-          `,
-          className: 'custom-div-icon',
-          iconSize: [40, 60],
-          iconAnchor: [20, 50]
-        }));
-      });
+      // 지도가 렌더링된 후 강제로 레이아웃 갱신
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 300);
     }
 
     return () => {
-      if (gameState !== 'map' && mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
+      if (gameState !== 'map' && mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
         markersRef.current = [];
       }
     };
-  }, [gameState, collected]);
+  }, [gameState]);
 
   const handleSpotClick = async (spot: TreasureSpot) => {
     if (collected.includes(spot.id)) return;
@@ -163,9 +157,15 @@ const TreasureHunt: React.FC = () => {
     setIsLoading(true);
     
     // Google Search Grounding 데이터 호출
-    const info = await geminiService.getPlaceSearchInfo(spot.name);
-    setGroundingInfo(info);
-    setIsLoading(false);
+    try {
+      const info = await geminiService.getPlaceSearchInfo(spot.name);
+      setGroundingInfo(info);
+    } catch (error) {
+      console.error('Info search failed', error);
+      setGroundingInfo({ text: spot.history, links: [] });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAnswer = (index: number) => {
@@ -185,7 +185,7 @@ const TreasureHunt: React.FC = () => {
       <div className="max-w-4xl w-full bg-white/95 backdrop-blur rounded-[2.5rem] shadow-2xl overflow-hidden mt-[50px] mb-12 border-4 border-white/50 relative">
         <div className="p-8 text-center">
           {gameState === 'start' && (
-            <div className="py-16 space-y-8">
+            <div className="py-16 space-y-8 animate-fade-in">
               <div className="relative inline-block">
                 <span className="text-9xl block mb-4 animate-bounce">🕊️</span>
                 <span className="absolute -top-4 -right-4 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg">부기 Boogi</span>
@@ -193,8 +193,7 @@ const TreasureHunt: React.FC = () => {
               <h1 className="text-4xl md:text-5xl font-jua text-sky-900">부기와 함께! 부산 보물찾기</h1>
               <p className="text-slate-600 leading-relaxed max-w-lg mx-auto text-lg">
                 안녕! 내는 부산의 마스코트 <span className="font-bold text-sky-600">부기</span>라고 해!<br/>
-                진짜 부산 지도를 보면서 숨겨진 5개의 역사 보물을 찾으러 가볼까?<br/>
-                구글 검색 실시간 정보를 확인하며 진짜 부산의 보물을 발견해보자!
+                진짜 부산 지도를 보면서 숨겨진 5개의 역사 보물을 찾으러 가볼까?
               </p>
               <button 
                 onClick={() => setGameState('map')}
@@ -206,7 +205,7 @@ const TreasureHunt: React.FC = () => {
           )}
 
           {gameState === 'map' && (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-fade-in">
               <div className="flex flex-col md:flex-row justify-between items-center bg-sky-50/80 p-5 rounded-3xl border border-sky-100 mb-2 gap-4">
                 <div className="flex items-center gap-4">
                   <span className="bg-sky-500 text-white font-jua px-4 py-2 rounded-xl text-xl shadow-sm">
@@ -219,18 +218,18 @@ const TreasureHunt: React.FC = () => {
                   </div>
                 </div>
                 <span className="text-sky-800 font-bold flex items-center gap-2">
-                  <span className="animate-pulse">📍</span> 지도 위의 핀을 클릭해 탐험을 시작하세요!
+                  <span className="animate-pulse">📍</span> 지도 위의 핀을 클릭하세요!
                 </span>
               </div>
               
-              <div className="relative w-full aspect-[16/10] bg-sky-50 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-sky-100">
-                <div id="map"></div>
+              <div className="relative w-full aspect-[16/10] bg-sky-50 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-sky-100 min-h-[400px]">
+                <div ref={mapContainerRef} className="w-full h-full" id="map"></div>
                 
-                <div className="absolute bottom-6 left-6 z-[20] bg-white/95 p-4 rounded-2xl shadow-xl border border-sky-200 flex items-center gap-4 animate-bounce">
+                <div className="absolute bottom-6 left-6 z-[20] bg-white/95 p-4 rounded-2xl shadow-xl border border-sky-200 flex items-center gap-4 animate-bounce pointer-events-none">
                   <div className="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center text-2xl border-2 border-sky-200">🕊️</div>
                   <div className="text-left">
                     <p className="text-xs font-bold text-sky-800">지도를 움직여봐!</p>
-                    <p className="text-[10px] text-slate-500">부산 곳곳에 보물이 숨어있어!</p>
+                    <p className="text-[10px] text-slate-500">부산의 보물을 찾아보자!</p>
                   </div>
                 </div>
               </div>
@@ -245,7 +244,7 @@ const TreasureHunt: React.FC = () => {
                 </div>
                 <div className="text-left">
                   <h2 className="text-4xl font-jua text-sky-900">{selectedSpot.name}</h2>
-                  <p className="text-sky-600 font-bold italic">구글 검색 실시간 정보 기반 퀴즈</p>
+                  <p className="text-sky-600 font-bold italic">역사 속 보물을 찾아라!</p>
                 </div>
               </div>
               
@@ -279,7 +278,7 @@ const TreasureHunt: React.FC = () => {
                   {isLoading ? (
                     <div className="flex-grow flex flex-col items-center justify-center space-y-4 py-12">
                       <div className="w-16 h-16 border-8 border-sky-200 border-t-sky-500 rounded-full animate-spin"></div>
-                      <p className="text-sky-600 font-bold animate-pulse">부기가 최신 정보를 찾는 중...</p>
+                      <p className="text-sky-600 font-bold animate-pulse">부기가 정보를 찾는 중...</p>
                     </div>
                   ) : (
                     <div className="flex-grow flex flex-col h-full">
@@ -304,7 +303,6 @@ const TreasureHunt: React.FC = () => {
                                 <span className="text-lg">🌐</span>
                                 <div className="text-left flex-grow overflow-hidden">
                                   <p className="text-[11px] font-bold text-slate-800 truncate group-hover:text-sky-700">{link.title}</p>
-                                  <p className="text-[9px] text-slate-400 truncate">{link.uri}</p>
                                 </div>
                                 <span className="text-sky-300">↗️</span>
                               </a>
@@ -330,11 +328,10 @@ const TreasureHunt: React.FC = () => {
             <div className="py-20 space-y-8 animate-fade-in">
               <span className="text-[10rem] block animate-bounce">💎</span>
               <h2 className="text-5xl font-jua text-sky-600">부산의 보물을 모두 찾았어!</h2>
-              <div className="bg-sky-50 p-12 rounded-[3rem] text-left border-4 border-white max-w-2xl mx-auto shadow-2xl relative overflow-hidden">
+              <div className="bg-sky-50 p-12 rounded-[3rem] text-left border-4 border-white max-w-2xl mx-auto shadow-2xl">
                 <p className="text-slate-700 leading-relaxed text-xl text-center">
                   진짜 지도를 따라 탐험한 부산의 보물찾기, 어땠어?<br/>
-                  구글 검색으로 알아본 <span className="font-extrabold text-sky-600 text-2xl">부산의 오늘과 어제</span>가<br/>
-                  너에게 소중한 기억이 되었길 바래!
+                  부산의 역사가 너에게 소중한 기억이 되었길 바래!
                 </p>
               </div>
               <button 
@@ -343,7 +340,7 @@ const TreasureHunt: React.FC = () => {
                   setGameState('start');
                   setGroundingInfo(null);
                 }}
-                className="bg-slate-900 text-white font-jua px-16 py-6 rounded-[2rem] text-2xl shadow-2xl hover:bg-slate-800 transition-all hover:scale-105 active:scale-95"
+                className="bg-slate-900 text-white font-jua px-16 py-6 rounded-[2rem] text-2xl shadow-2xl hover:bg-slate-800 transition-all"
               >
                 새로운 모험 시작하기
               </button>
