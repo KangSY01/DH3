@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import WavesOfMemory from './pages/WavesOfMemory';
-import MarketGame from './pages/MarketGame';
+import TreasureHunt from './pages/MarketGame'; // 파일명은 유지하되 내용은 보물찾기로 변경
 import VoiceOfBusan from './pages/VoiceOfBusan';
 import FutureHarbor from './pages/FutureHarbor';
 
@@ -11,7 +11,7 @@ const Navigation = () => {
   const menuItems = [
     { path: '/', label: '홈', icon: '🏠' },
     { path: '/waves', label: '파도의 기억', icon: '🌊' },
-    { path: '/market', label: '웅성웅성 시장통', icon: '🍜' },
+    { path: '/market', label: '부기와 보물찾기', icon: '🧭' },
     { path: '/voice', label: '부산의 목소리', icon: '👴' },
     { path: '/harbor', label: '미래의 항구', icon: '⚓' },
   ];
@@ -49,9 +49,9 @@ const HomePage = () => {
           <p className="text-sm text-slate-500 text-center mt-2">시간을 따라 걷는 부산 연표</p>
         </Link>
         <Link to="/market" className="pastel-yellow p-8 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center">
-          <span className="text-5xl mb-4">🍜</span>
-          <h2 className="text-xl font-jua">웅성웅성 시장통</h2>
-          <p className="text-sm text-slate-500 text-center mt-2">피란 시절 밀면 만들기</p>
+          <span className="text-5xl mb-4">🧭</span>
+          <h2 className="text-xl font-jua">부기와 보물찾기</h2>
+          <p className="text-sm text-slate-500 text-center mt-2">지도를 따라 떠나는 퀴즈 여행</p>
         </Link>
         <Link to="/voice" className="pastel-pink p-8 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center">
           <span className="text-5xl mb-4">👴</span>
@@ -81,7 +81,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/waves" element={<WavesOfMemory />} />
-            <Route path="/market" element={<MarketGame />} />
+            <Route path="/market" element={<TreasureHunt />} />
             <Route path="/voice" element={<VoiceOfBusan />} />
             <Route path="/harbor" element={<FutureHarbor />} />
           </Routes>

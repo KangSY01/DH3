@@ -3,15 +3,16 @@ import { GoogleGenAI } from "@google/genai";
 import { DOCENT_PROMPT } from "../constants";
 
 export class GeminiService {
-  private ai: GoogleGenAI;
+  constructor() {}
 
-  constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  private getClient() {
+    return new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
   }
 
   async chatWithHalbae(message: string, history: { role: 'user' | 'model', parts: { text: string }[] }[] = []) {
     try {
-      const response = await this.ai.models.generateContent({
+      const ai = this.getClient();
+      const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: [
           ...history,
@@ -28,6 +29,83 @@ export class GeminiService {
     } catch (error) {
       console.error("Gemini API Error:", error);
       return "할배가 목이 좀 아프네. 나중에 다시 이야기하자꾸나.";
+    }
+  }
+
+  // Google Search Grounding을 활용한 장소 정보 검색
+  async getPlaceSearchInfo(placeName: string) {
+    try {
+      const ai = this.getClient();
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: `부산의 명소 '${placeName}'에 대해 구글 검색을 통해 최신 정보, 역사적 배경, 그리고 현재 방문객들에게 유용한 팁을 알려줘.`,
+        config: {
+          tools: [{ googleSearch: {} }],
+        },
+      });
+
+      const text = response.text || "";
+      // Search Grounding 결과에서 웹 URL 추출
+      const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      const links = chunks
+        .filter(chunk => chunk.web)
+        .map(chunk => ({
+          title: chunk.web?.title || "출처 확인하기",
+          uri: chunk.web?.uri || ""
+        }))
+        .filter(link => link.uri !== "");
+
+      return { text, links };
+    } catch (error) {
+      console.error("Search Grounding Error:", error);
+      return { text: "검색 정보를 가져오는 데 실패했습니다.", links: [] };
+    }
+  }
+
+  async getPlaceGrounding(placeName: string) {
+    try {
+      const ai = this.getClient();
+      let lat = 35.1796;
+      let lng = 129.0756;
+
+      if (navigator.geolocation) {
+        const pos = await new Promise<GeolocationPosition>((res, rej) => 
+          navigator.geolocation.getCurrentPosition(res, rej)
+        ).catch(() => null);
+        if (pos) {
+          lat = pos.coords.latitude;
+          lng = pos.coords.longitude;
+        }
+      }
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: `${placeName}에 대한 최신 정보와 역사적 의미를 알려줘.`,
+        config: {
+          tools: [{ googleMaps: {} }],
+          toolConfig: {
+            retrievalConfig: {
+              latLng: {
+                latitude: lat,
+                longitude: lng
+              }
+            }
+          }
+        },
+      });
+
+      const text = response.text || "";
+      const links = response.candidates?.[0]?.groundingMetadata?.groundingChunks
+        ?.filter(chunk => chunk.maps)
+        ?.map(chunk => ({
+          title: chunk.maps?.title || "지도에서 보기",
+          uri: chunk.maps?.uri
+        })) || [];
+
+      return { text, links };
+    } catch (error) {
+      console.error("Maps Grounding Error:", error);
+      return { text: "정보를 가져오는 데 실패했습니다.", links: [] };
     }
   }
 }
