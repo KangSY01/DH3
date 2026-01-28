@@ -13,7 +13,7 @@ const Navigation = () => {
     { path: '/waves', label: 'TIMELINE', icon: '⏳' },
     { path: '/market', label: 'EXPLORE', icon: '🔍' },
     { path: '/voice', label: 'ARCHIVE', icon: '🎙️' },
-    { path: '/harbor', label: 'FUTURE', icon: '✨' },
+    { path: '/harbor', label: 'VISION', icon: '✨' },
   ];
 
   return (
@@ -27,7 +27,7 @@ const Navigation = () => {
           }`}
         >
           <span className="text-xl mb-1 group-hover:scale-110 transition-transform">{item.icon}</span>
-          <span className="text-[10px] tracking-[0.2em] font-medium">{item.label}</span>
+          <span className="text-[10px] tracking-[0.2em] font-medium uppercase">{item.label}</span>
           {location.pathname === item.path && (
             <div className="absolute -bottom-1 w-4 h-0.5 bg-[#c5a059] md:bottom-1"></div>
           )}
@@ -41,7 +41,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen archive-bg flex flex-col items-center justify-center p-6 pt-[118px] pb-40 md:pt-[182px] md:pb-24">
       <div className="text-center mb-20 fade-up">
-        <h2 className="text-[#c5a059] text-sm tracking-[0.4em] mb-4 font-medium">BUSAN DIGITAL HUMANITIES</h2>
+        <h2 className="text-[#c5a059] text-sm tracking-[0.4em] mb-4 font-medium uppercase">Busan Digital Humanities Archive</h2>
         <h1 className="text-5xl md:text-8xl text-white mb-6 font-serif font-black tracking-tight leading-tight">
           부산역사<br/><span className="text-[#c5a059]">보물상자</span>
         </h1>
@@ -54,7 +54,7 @@ const HomePage = () => {
           { path: '/waves', title: '파도의 기억', desc: '역사적 타임라인 아카이브', icon: '⏳' },
           { path: '/market', title: '부기와 탐험', desc: '지리적 기록물 큐레이션', icon: '🔍' },
           { path: '/voice', title: '부산의 목소리', desc: 'AI 도슨트 구술 기록', icon: '🎙️' },
-          { path: '/harbor', title: '미래의 항구', desc: '시민 참여형 미래 설계', icon: '✨' }
+          { path: '/harbor', title: '미래의 부산', desc: '시민 참여형 미래 비전 설계', icon: '✨' }
         ].map((item, idx) => (
           <Link 
             key={idx}

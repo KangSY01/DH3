@@ -43,40 +43,49 @@ const WavesOfMemory: React.FC = () => {
         ref={timelineRef}
         className={`p-6 pt-[140px] pb-40 md:p-20 md:pt-[180px] transition-all duration-1000 ${isOpeningFinished ? 'opacity-100' : 'opacity-0 scale-95'}`}
       >
-        <div className="max-w-5xl mx-auto">
-          <header className="mb-24 text-left border-l-2 border-[#c5a059] pl-8">
+        <div className="max-w-7xl mx-auto">
+          <header className="mb-32 text-left border-l-2 border-[#c5a059] pl-10 max-w-4xl">
             <span className="text-[#c5a059] text-xs font-bold mb-4 block tracking-[0.5em]">HISTORICAL CHRONOLOGY</span>
             <h1 className="text-6xl md:text-9xl text-white mb-8 font-serif font-black tracking-tighter">파도의 기억</h1>
-            <p className="text-slate-400 text-xl md:text-2xl font-light max-w-2xl">부산의 시간을 수놓은 주요 사건들을 고고학적 시각으로 기록한 타임라인입니다.</p>
+            <p className="text-slate-400 text-xl md:text-3xl font-light leading-relaxed">부산의 시간을 수놓은 주요 사건들을<br/>고고학적 시각으로 기록한 디지털 도록입니다.</p>
           </header>
 
-          <div className="relative border-l border-white/10 ml-4 md:ml-0 md:border-l-0">
+          <div className="relative">
             {TIMELINE_DATA.map((event, index) => (
               <div 
                 key={index} 
-                className={`relative w-full mb-2 md:mb-4 group ${
-                  index % 2 === 0 ? 'md:ml-auto md:pl-20' : 'md:mr-auto md:pr-20'
-                } md:w-[50%]`}
+                className={`relative w-full mb-8 md:mb-16 group flex ${
+                  index % 2 === 0 ? 'md:justify-end' : 'md:justify-start'
+                }`}
               >
-                {/* 인덱스 번호 및 노드 */}
-                <div className="absolute top-8 -left-[25px] md:left-auto md:right-auto md:left-1/2 md:-translate-x-1/2 flex flex-col items-center">
-                  <div className="w-3 h-3 bg-[#c5a059] rotate-45 group-hover:scale-150 transition-transform duration-500"></div>
-                  <div className="hidden md:block w-px h-full bg-white/5 flex-grow"></div>
+                {/* 인덱스 노드 (중앙 배치) */}
+                <div className="hidden md:flex absolute left-1/2 top-16 -translate-x-1/2 flex-col items-center z-20">
+                  <div className="w-4 h-4 bg-[#c5a059] rotate-45 group-hover:scale-150 transition-transform duration-500 shadow-[0_0_15px_rgba(197,160,89,0.5)]"></div>
                 </div>
                 
-                <div className="bg-[#112240]/40 p-8 md:p-12 hover:bg-[#112240] transition-all border-b border-white/5 group-hover:border-[#c5a059]/30">
-                  <div className="flex items-baseline gap-6 mb-4">
-                    <span className="text-[#c5a059] text-4xl md:text-6xl font-serif font-black tracking-tighter">
-                      {event.year}
-                    </span>
-                    <div className="h-px bg-[#c5a059]/20 flex-grow"></div>
+                {/* 항목 카드: 전체의 3/5(60%) 너비 차지 */}
+                <div className={`w-full md:w-[60%] bg-[#112240]/40 p-10 md:p-16 hover:bg-[#112240] transition-all border border-white/5 group-hover:border-[#c5a059]/30 relative overflow-hidden ${
+                  index % 2 === 0 ? 'md:pl-24' : 'md:pr-24'
+                }`}>
+                  {/* 장식적 요소: 배경 연도 */}
+                  <div className="absolute top-0 right-0 text-[10rem] font-serif font-black text-white/[0.02] -translate-y-1/4 translate-x-1/4 pointer-events-none group-hover:text-[#c5a059]/[0.05] transition-colors">
+                    {event.year.replace('년', '')}
                   </div>
-                  <h3 className="text-3xl md:text-5xl font-serif text-white mb-6 leading-tight group-hover:translate-x-2 transition-transform">
-                    {event.title}
-                  </h3>
-                  <p className="text-slate-400 text-lg md:text-2xl leading-relaxed font-light tracking-tight group-hover:text-slate-200 transition-colors">
-                    {event.description}
-                  </p>
+
+                  <div className="relative z-10">
+                    <div className="flex items-baseline gap-8 mb-6">
+                      <span className="text-[#c5a059] text-5xl md:text-7xl font-serif font-black tracking-tighter">
+                        {event.year}
+                      </span>
+                      <div className="h-px bg-gradient-to-r from-[#c5a059]/40 to-transparent flex-grow"></div>
+                    </div>
+                    <h3 className="text-4xl md:text-6xl font-serif text-white mb-10 leading-[1.1] group-hover:translate-x-2 transition-transform duration-700">
+                      {event.title}
+                    </h3>
+                    <p className="text-slate-400 text-xl md:text-2xl leading-relaxed font-light tracking-tight group-hover:text-slate-200 transition-colors duration-500 max-w-3xl">
+                      {event.description}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}

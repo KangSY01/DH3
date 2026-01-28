@@ -73,20 +73,16 @@ const TreasureHunt: React.FC = () => {
   const [collected, setCollected] = useState<string[]>([]);
   const [groundingInfo, setGroundingInfo] = useState<{ text: string, links: { title: string, uri: string }[] } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'correct' | 'incorrect', message: string } | null>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
-  // 지도 초기화 및 관리
   useEffect(() => {
     if (gameState === 'map' && mapContainerRef.current && !mapInstanceRef.current) {
       const L = (window as any).L;
-      if (!L) {
-        console.error('Leaflet library is not loaded');
-        return;
-      }
+      if (!L) return;
 
-      // 기존 지도 객체가 있다면 제거
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -98,24 +94,25 @@ const TreasureHunt: React.FC = () => {
         zoomControl: false,
       });
 
-      L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
+      // 밝은 분위기를 위해 CartoDB Positron(밝은 테마) 레이어 사용
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
       }).addTo(map);
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // 마커 생성 로직
       const markers: any[] = [];
       SPOTS.forEach(spot => {
         const isCollected = collected.includes(spot.id);
         const iconHtml = `
           <div class="flex flex-col items-center" id="marker-${spot.id}">
-            <div class="relative w-10 h-10 flex items-center justify-center bg-white border-4 ${isCollected ? 'border-emerald-500 shadow-emerald-200' : 'border-sky-500 shadow-sky-200'} rounded-full shadow-xl transition-all hover:scale-125">
+            <div class="relative w-10 h-10 flex items-center justify-center bg-[#0a192f] border-2 ${isCollected ? 'border-[#c5a059] shadow-[0_0_15px_rgba(197,160,89,0.5)]' : 'border-[#1e293b]'} rounded-full shadow-xl transition-all hover:scale-125">
               <span class="text-xl">${isCollected ? '⭐' : spot.icon}</span>
-              <div class="absolute -bottom-1 w-2 h-2 rotate-45 ${isCollected ? 'bg-emerald-500' : 'bg-sky-500'}"></div>
+              <div class="absolute -bottom-1 w-2 h-2 rotate-45 ${isCollected ? 'bg-[#c5a059]' : 'bg-[#1e293b]'}"></div>
             </div>
-            <div class="mt-1 bg-white/90 px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm whitespace-nowrap border border-slate-100">${spot.name}</div>
+            <div class="mt-1 bg-[#1e293b] px-2 py-0.5 rounded-sm text-[9px] font-bold text-white shadow-md whitespace-nowrap border border-white/10 uppercase tracking-tighter">${spot.name}</div>
           </div>
         `;
 
@@ -134,7 +131,6 @@ const TreasureHunt: React.FC = () => {
       markersRef.current = markers;
       mapInstanceRef.current = map;
 
-      // 지도가 렌더링된 후 강제로 레이아웃 갱신
       setTimeout(() => {
         map.invalidateSize();
       }, 300);
@@ -147,7 +143,7 @@ const TreasureHunt: React.FC = () => {
         markersRef.current = [];
       }
     };
-  }, [gameState]);
+  }, [gameState, collected]);
 
   const handleSpotClick = async (spot: TreasureSpot) => {
     if (collected.includes(spot.id)) return;
@@ -155,13 +151,12 @@ const TreasureHunt: React.FC = () => {
     setSelectedSpot(spot);
     setGameState('quiz');
     setIsLoading(true);
+    setFeedback(null);
     
-    // Google Search Grounding 데이터 호출
     try {
       const info = await geminiService.getPlaceSearchInfo(spot.name);
       setGroundingInfo(info);
     } catch (error) {
-      console.error('Info search failed', error);
       setGroundingInfo({ text: spot.history, links: [] });
     } finally {
       setIsLoading(false);
@@ -170,141 +165,176 @@ const TreasureHunt: React.FC = () => {
 
   const handleAnswer = (index: number) => {
     if (selectedSpot && index === selectedSpot.answer) {
-      setCollected([...collected, selectedSpot.id]);
-      setGameState('map');
-      if (collected.length + 1 === SPOTS.length) {
-        setGameState('finish');
-      }
+      setFeedback({ type: 'correct', message: '훌륭합니다! 역사의 조각을 하나 더 찾으셨군요.' });
+      setTimeout(() => {
+        setCollected(prev => [...prev, selectedSpot.id]);
+        if (collected.length + 1 === SPOTS.length) {
+          setGameState('finish');
+        } else {
+          setGameState('map');
+        }
+        setFeedback(null);
+      }, 2000);
     } else {
-      alert('틀렸어! 부기가 힌트를 줄 테니 다시 한번 생각해보자~');
+      setFeedback({ type: 'incorrect', message: '아직은 기억이 조금 흐릿하군요. 다시 한번 살펴볼까요?' });
+      setTimeout(() => setFeedback(null), 2000);
     }
   };
 
   return (
-    <div className="min-h-screen wave-bg p-6 pt-[118px] pb-40 flex flex-col items-center md:pt-[150px]">
-      <div className="max-w-4xl w-full bg-white/95 backdrop-blur rounded-[2.5rem] shadow-2xl overflow-hidden mt-[50px] mb-12 border-4 border-white/50 relative">
-        <div className="p-8 text-center">
+    <div className="min-h-screen bg-[#0a192f] p-6 pt-[118px] pb-40 flex flex-col items-center md:pt-[150px] transition-colors duration-1000">
+      
+      {/* 즉각적인 피드백 메시지 레이어 */}
+      {feedback && (
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] fade-up">
+          <div className={`px-10 py-6 rounded-sm border backdrop-blur-xl shadow-2xl ${
+            feedback.type === 'correct' 
+              ? 'bg-[#c5a059]/90 border-white/20 text-[#0a192f]' 
+              : 'bg-red-900/90 border-red-500/50 text-white'
+          }`}>
+            <p className="text-xl md:text-2xl font-serif font-bold tracking-tight text-center">
+              {feedback.type === 'correct' ? '✨ ARCHIVED' : '⚠️ RE-EXAMINE'}
+            </p>
+            <p className="mt-2 text-sm md:text-lg font-medium opacity-90 text-center">{feedback.message}</p>
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-5xl w-full bg-[#112240]/50 backdrop-blur-md rounded-sm border border-white/5 overflow-hidden shadow-2xl relative">
+        <div className="p-8 md:p-12">
           {gameState === 'start' && (
-            <div className="py-16 space-y-8 animate-fade-in">
+            <div className="py-20 text-center space-y-12 fade-up">
               <div className="relative inline-block">
-                <span className="text-9xl block mb-4 animate-bounce">🕊️</span>
-                <span className="absolute -top-4 -right-4 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg">부기 Boogi</span>
+                <span className="text-[120px] block mb-4 filter drop-shadow-[0_0_20px_rgba(197,160,89,0.3)]">🏛️</span>
+                <span className="absolute -top-4 -right-12 bg-[#c5a059] text-[#0a192f] text-[10px] px-3 py-1 font-bold tracking-[0.2em] uppercase">Digital Archive</span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-jua text-sky-900">부기와 함께! 부산 보물찾기</h1>
-              <p className="text-slate-600 leading-relaxed max-w-lg mx-auto text-lg">
-                안녕! 내는 부산의 마스코트 <span className="font-bold text-sky-600">부기</span>라고 해!<br/>
-                진짜 부산 지도를 보면서 숨겨진 5개의 역사 보물을 찾으러 가볼까?
+              <div className="space-y-4">
+                <h1 className="text-4xl md:text-6xl font-serif font-black text-white tracking-tighter">부산 지리 기록 탐험</h1>
+                <p className="text-[#c5a059] text-sm md:text-base tracking-[0.3em] font-medium uppercase">Explore the Geography of Memories</p>
+              </div>
+              <p className="text-slate-400 leading-relaxed max-w-xl mx-auto text-lg font-light">
+                부산의 주요 거점에 새겨진 역사적 흔적을 추적합니다.<br/>
+                실제 지도를 탐색하며 5개의 흩어진 기록물을 수집해 보십시오.
               </p>
               <button 
                 onClick={() => setGameState('map')}
-                className="bg-sky-500 hover:bg-sky-600 text-white font-jua px-16 py-6 rounded-3xl text-3xl shadow-[0_10px_0_rgb(3,105,161)] transition-all hover:translate-y-1 hover:shadow-[0_5px_0_rgb(3,105,161)] active:translate-y-2 active:shadow-none"
+                className="bg-[#c5a059] hover:bg-[#d4b06a] text-[#0a192f] font-bold px-20 py-6 text-xl tracking-[0.3em] transition-all uppercase shadow-xl"
               >
-                모험 시작하기!
+                탐험 시작하기
               </button>
             </div>
           )}
 
           {gameState === 'map' && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="flex flex-col md:flex-row justify-between items-center bg-sky-50/80 p-5 rounded-3xl border border-sky-100 mb-2 gap-4">
-                <div className="flex items-center gap-4">
-                  <span className="bg-sky-500 text-white font-jua px-4 py-2 rounded-xl text-xl shadow-sm">
-                    수집 현황: {collected.length} / {SPOTS.length}
-                  </span>
-                  <div className="flex gap-1">
-                    {SPOTS.map(s => (
-                      <span key={s.id} className={`w-4 h-4 rounded-full ${collected.includes(s.id) ? 'bg-sky-500' : 'bg-slate-200 shadow-inner'}`}></span>
-                    ))}
+            <div className="space-y-8 fade-up">
+              <header className="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-white/10 pb-8">
+                <div>
+                  <h2 className="text-2xl font-serif text-white flex items-center gap-3">
+                    <span className="text-[#c5a059]">📍</span> 실시간 기록 지도
+                  </h2>
+                  <p className="text-xs text-[#c5a059]/60 tracking-widest mt-1 uppercase">Select a point of interest on the map</p>
+                </div>
+                <div className="flex items-center gap-6">
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] text-white/30 tracking-widest uppercase mb-1">Archive Status</span>
+                    <div className="flex gap-1.5">
+                      {SPOTS.map(s => (
+                        <div key={s.id} className={`w-6 h-1 rounded-full ${collected.includes(s.id) ? 'bg-[#c5a059]' : 'bg-white/10'}`}></div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-[#c5a059] text-[#0a192f] font-bold px-4 py-2 text-sm tracking-widest">
+                    {collected.length} / {SPOTS.length}
                   </div>
                 </div>
-                <span className="text-sky-800 font-bold flex items-center gap-2">
-                  <span className="animate-pulse">📍</span> 지도 위의 핀을 클릭하세요!
-                </span>
-              </div>
+              </header>
               
-              <div className="relative w-full aspect-[16/10] bg-sky-50 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-sky-100 min-h-[400px]">
-                <div ref={mapContainerRef} className="w-full h-full" id="map"></div>
-                
-                <div className="absolute bottom-6 left-6 z-[20] bg-white/95 p-4 rounded-2xl shadow-xl border border-sky-200 flex items-center gap-4 animate-bounce pointer-events-none">
-                  <div className="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center text-2xl border-2 border-sky-200">🕊️</div>
-                  <div className="text-left">
-                    <p className="text-xs font-bold text-sky-800">지도를 움직여봐!</p>
-                    <p className="text-[10px] text-slate-500">부산의 보물을 찾아보자!</p>
-                  </div>
+              <div className="relative w-full aspect-[21/9] bg-[#0a192f] border border-white/5 min-h-[450px]">
+                <div ref={mapContainerRef} className="w-full h-full opacity-100 transition-opacity" id="map"></div>
+                <div className="absolute top-6 left-6 z-[20] bg-white/80 backdrop-blur-md p-4 border border-black/10 text-black/40 text-[10px] tracking-widest uppercase font-mono pointer-events-none">
+                  SYSTEM ACTIVE: LAT_LNG_RADAR
                 </div>
               </div>
             </div>
           )}
 
           {gameState === 'quiz' && selectedSpot && (
-            <div className="space-y-8 py-4 animate-fade-in">
-              <div className="flex items-center justify-center gap-4">
-                <div className="w-20 h-20 bg-sky-50 rounded-3xl flex items-center justify-center text-5xl shadow-inner border-2 border-sky-100">
-                  {selectedSpot.icon}
+            <div className="space-y-12 py-4 fade-up">
+              <div className="flex items-center justify-between border-b border-white/10 pb-8">
+                <div className="flex items-center gap-6">
+                  <div className="w-20 h-20 bg-[#c5a059]/10 border border-[#c5a059]/30 flex items-center justify-center text-4xl">
+                    {selectedSpot.icon}
+                  </div>
+                  <div>
+                    <h2 className="text-3xl md:text-5xl font-serif font-black text-white">{selectedSpot.name}</h2>
+                    <p className="text-[#c5a059] text-xs font-bold tracking-[0.4em] mt-2 uppercase">Verification in Progress</p>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <h2 className="text-4xl font-jua text-sky-900">{selectedSpot.name}</h2>
-                  <p className="text-sky-600 font-bold italic">역사 속 보물을 찾아라!</p>
+                <div className="hidden md:block text-right">
+                  <p className="text-[10px] text-white/20 font-mono">SPOT_ID: {selectedSpot.id.toUpperCase()}</p>
+                  <p className="text-[10px] text-white/20 font-mono">COORD: {selectedSpot.lat}, {selectedSpot.lng}</p>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                <div className="bg-white p-8 rounded-[2rem] border-4 border-sky-50 shadow-sm text-left flex flex-col">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="bg-sky-500 text-white w-8 h-8 flex items-center justify-center rounded-xl font-bold">Q</span>
-                    <h3 className="text-xl font-jua text-slate-800">부기의 역사 퀴즈</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-stretch">
+                {/* 퀴즈 섹션 */}
+                <div className="bg-[#0a192f]/50 p-10 border-l-2 border-[#c5a059] flex flex-col">
+                  <div className="flex items-center gap-3 mb-8">
+                    <span className="text-[#c5a059] text-xs font-bold tracking-widest uppercase">Inquiry</span>
                   </div>
-                  <p className="text-xl text-slate-800 mb-8 font-medium leading-relaxed">{selectedSpot.quiz}</p>
+                  <h3 className="text-2xl md:text-3xl font-serif text-white mb-10 leading-snug font-bold">
+                    {selectedSpot.quiz}
+                  </h3>
                   <div className="space-y-4 mt-auto">
                     {selectedSpot.options.map((option, idx) => (
                       <button
                         key={idx}
                         onClick={() => handleAnswer(idx)}
-                        className="w-full text-left bg-slate-50 hover:bg-sky-100 border-2 border-slate-100 hover:border-sky-300 p-5 rounded-2xl font-bold text-lg transition-all flex justify-between items-center group"
+                        className="w-full text-left bg-[#f5f5f0] hover:bg-white border-none p-6 text-[#020617] font-black text-xl transition-all flex justify-between items-center group shadow-lg"
                       >
-                        <span>{idx + 1}. {option}</span>
-                        <span className="opacity-0 group-hover:opacity-100 transition-opacity">➡️</span>
+                        <span className="tracking-tight">{idx + 1}. {option}</span>
+                        <span className="text-[#c5a059] opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div className="bg-sky-50/50 p-8 rounded-[2rem] border-4 border-white shadow-inner text-left flex flex-col">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="text-2xl">🔍</span>
-                    <h3 className="text-xl font-jua text-sky-800">구글 검색 실시간 정보</h3>
+                {/* 정보 아카이브 섹션 */}
+                <div className="bg-[#112240]/40 p-10 border border-white/5 flex flex-col">
+                  <div className="flex items-center gap-3 mb-8">
+                    <span className="text-white/20 text-xs font-bold tracking-widest uppercase">Reference Archive</span>
                   </div>
                   
                   {isLoading ? (
-                    <div className="flex-grow flex flex-col items-center justify-center space-y-4 py-12">
-                      <div className="w-16 h-16 border-8 border-sky-200 border-t-sky-500 rounded-full animate-spin"></div>
-                      <p className="text-sky-600 font-bold animate-pulse">부기가 정보를 찾는 중...</p>
+                    <div className="flex-grow flex flex-col items-center justify-center space-y-6">
+                      <div className="w-12 h-12 border-2 border-[#c5a059]/20 border-t-[#c5a059] rounded-full animate-spin"></div>
+                      <p className="text-[#c5a059] text-xs font-bold tracking-[0.3em] animate-pulse uppercase">Restoring Data...</p>
                     </div>
                   ) : (
                     <div className="flex-grow flex flex-col h-full">
-                      <div className="bg-white/80 p-5 rounded-2xl border border-sky-100 mb-6 flex-grow overflow-y-auto max-h-[180px] custom-scrollbar">
-                        <div className="text-slate-700 text-sm leading-relaxed whitespace-pre-line">
+                      <div className="bg-[#0a192f]/50 p-6 border border-white/5 mb-8 flex-grow overflow-y-auto max-h-[220px] scroll-smooth">
+                        <div className="text-slate-300 text-lg md:text-xl leading-relaxed font-serif font-light whitespace-pre-line italic opacity-80">
                           {groundingInfo?.text || selectedSpot.history}
                         </div>
                       </div>
                       
                       {groundingInfo?.links && groundingInfo.links.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-[10px] font-bold text-sky-600 uppercase tracking-widest px-1">검색 출처 및 더보기</p>
-                          <div className="flex flex-col gap-2">
+                        <div className="space-y-3">
+                          <p className="text-[10px] font-bold text-[#c5a059]/60 uppercase tracking-widest px-1">Source Materials</p>
+                          <div className="grid grid-cols-1 gap-2">
                             {groundingInfo.links.map((link, i) => (
                               <a 
                                 key={i} 
                                 href={link.uri} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="group flex items-center gap-3 bg-white hover:bg-sky-50 p-3 rounded-xl border border-sky-100 transition-all hover:translate-x-1 shadow-sm"
+                                className="group flex items-center justify-between bg-[#1e293b]/50 hover:bg-[#1e293b] p-4 border border-white/5 transition-all"
                               >
-                                <span className="text-lg">🌐</span>
-                                <div className="text-left flex-grow overflow-hidden">
-                                  <p className="text-[11px] font-bold text-slate-800 truncate group-hover:text-sky-700">{link.title}</p>
+                                <div className="flex items-center gap-4 overflow-hidden">
+                                  <span className="text-[#c5a059]">🌐</span>
+                                  <p className="text-[11px] font-bold text-slate-300 truncate tracking-tight">{link.title}</p>
                                 </div>
-                                <span className="text-sky-300">↗️</span>
+                                <span className="text-[#c5a059]/30 group-hover:text-[#c5a059] text-xs">↗</span>
                               </a>
                             ))}
                           </div>
@@ -315,23 +345,27 @@ const TreasureHunt: React.FC = () => {
                 </div>
               </div>
 
-              <button 
-                onClick={() => setGameState('map')}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-500 px-8 py-3 rounded-full text-sm font-bold transition-all"
-              >
-                ← 지도로 돌아가기
-              </button>
+              <div className="pt-8 border-t border-white/10 flex justify-center">
+                <button 
+                  onClick={() => setGameState('map')}
+                  className="text-white/20 hover:text-[#c5a059] text-xs font-bold tracking-[0.4em] transition-all uppercase"
+                >
+                  [ Return to Map Interface ]
+                </button>
+              </div>
             </div>
           )}
 
           {gameState === 'finish' && (
-            <div className="py-20 space-y-8 animate-fade-in">
-              <span className="text-[10rem] block animate-bounce">💎</span>
-              <h2 className="text-5xl font-jua text-sky-600">부산의 보물을 모두 찾았어!</h2>
-              <div className="bg-sky-50 p-12 rounded-[3rem] text-left border-4 border-white max-w-2xl mx-auto shadow-2xl">
-                <p className="text-slate-700 leading-relaxed text-xl text-center">
-                  진짜 지도를 따라 탐험한 부산의 보물찾기, 어땠어?<br/>
-                  부산의 역사가 너에게 소중한 기억이 되었길 바래!
+            <div className="py-24 text-center space-y-12 fade-up">
+              <span className="text-[120px] block filter drop-shadow-[0_0_30px_rgba(197,160,89,0.5)]">🏺</span>
+              <div className="space-y-4">
+                <h2 className="text-4xl md:text-6xl font-serif font-black text-white tracking-tighter">아카이브 복원 완료</h2>
+                <p className="text-[#c5a059] text-sm md:text-base tracking-[0.4em] font-medium uppercase">All Historical Fragments Recovered</p>
+              </div>
+              <div className="bg-[#0a192f]/50 p-12 border border-[#c5a059]/20 max-w-2xl mx-auto shadow-2xl">
+                <p className="text-slate-400 leading-relaxed text-xl md:text-2xl font-light font-serif italic">
+                  "지도는 단순히 땅을 보여주는 것이 아니라, 그 땅 위에 겹겹이 쌓인 인간의 삶과 시간을 보여주는 거울입니다."
                 </p>
               </div>
               <button 
@@ -340,9 +374,9 @@ const TreasureHunt: React.FC = () => {
                   setGameState('start');
                   setGroundingInfo(null);
                 }}
-                className="bg-slate-900 text-white font-jua px-16 py-6 rounded-[2rem] text-2xl shadow-2xl hover:bg-slate-800 transition-all"
+                className="bg-[#c5a059] text-[#0a192f] font-bold px-20 py-6 text-xl tracking-[0.3em] hover:bg-[#d4b06a] transition-all uppercase shadow-2xl"
               >
-                새로운 모험 시작하기
+                새로운 조사 시작
               </button>
             </div>
           )}
