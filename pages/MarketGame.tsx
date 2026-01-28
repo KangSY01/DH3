@@ -94,7 +94,6 @@ const TreasureHunt: React.FC = () => {
         zoomControl: false,
       });
 
-      // 밝은 분위기를 위해 CartoDB Positron(밝은 테마) 레이어 사용
       L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
@@ -184,7 +183,6 @@ const TreasureHunt: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0a192f] p-6 pt-[118px] pb-40 flex flex-col items-center md:pt-[150px] transition-colors duration-1000">
       
-      {/* 즉각적인 피드백 메시지 레이어 */}
       {feedback && (
         <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] fade-up">
           <div className={`px-10 py-6 rounded-sm border backdrop-blur-xl shadow-2xl ${
@@ -200,7 +198,7 @@ const TreasureHunt: React.FC = () => {
         </div>
       )}
 
-      <div className="max-w-5xl w-full bg-[#112240]/50 backdrop-blur-md rounded-sm border border-white/5 overflow-hidden shadow-2xl relative">
+      <div className="max-w-6xl w-full bg-[#112240]/50 backdrop-blur-md rounded-sm border border-white/5 overflow-hidden shadow-2xl relative">
         <div className="p-8 md:p-12">
           {gameState === 'start' && (
             <div className="py-20 text-center space-y-12 fade-up">
@@ -262,35 +260,35 @@ const TreasureHunt: React.FC = () => {
             <div className="space-y-12 py-4 fade-up">
               <div className="flex items-center justify-between border-b border-white/10 pb-8">
                 <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 bg-[#c5a059]/10 border border-[#c5a059]/30 flex items-center justify-center text-4xl">
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-[#c5a059]/10 border border-[#c5a059]/30 flex items-center justify-center text-3xl md:text-4xl">
                     {selectedSpot.icon}
                   </div>
                   <div>
-                    <h2 className="text-3xl md:text-5xl font-serif font-black text-white">{selectedSpot.name}</h2>
-                    <p className="text-[#c5a059] text-xs font-bold tracking-[0.4em] mt-2 uppercase">Verification in Progress</p>
+                    <h2 className="text-2xl md:text-5xl font-serif font-black text-white">{selectedSpot.name}</h2>
+                    <p className="text-[#c5a059] text-[10px] md:text-xs font-bold tracking-[0.4em] mt-1 md:mt-2 uppercase">Verification in Progress</p>
                   </div>
                 </div>
                 <div className="hidden md:block text-right">
-                  <p className="text-[10px] text-white/20 font-mono">SPOT_ID: {selectedSpot.id.toUpperCase()}</p>
-                  <p className="text-[10px] text-white/20 font-mono">COORD: {selectedSpot.lat}, {selectedSpot.lng}</p>
+                  <p className="text-[10px] text-white/20 font-mono uppercase tracking-widest">Spot_Code: {selectedSpot.id.toUpperCase()}</p>
+                  <p className="text-[10px] text-white/20 font-mono uppercase tracking-widest">Coord: {selectedSpot.lat}, {selectedSpot.lng}</p>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-stretch">
-                {/* 퀴즈 섹션 */}
-                <div className="bg-[#0a192f]/50 p-10 border-l-2 border-[#c5a059] flex flex-col">
-                  <div className="flex items-center gap-3 mb-8">
-                    <span className="text-[#c5a059] text-xs font-bold tracking-widest uppercase">Inquiry</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-stretch h-auto md:h-[600px]">
+                {/* 퀴즈 섹션 (Inquiry Interface) */}
+                <div className="bg-[#0a192f]/50 p-8 md:p-10 border-l-2 border-[#c5a059] flex flex-col h-full shadow-inner">
+                  <div className="flex items-center gap-3 mb-6 md:mb-8">
+                    <span className="text-[#c5a059] text-[10px] md:text-xs font-bold tracking-widest uppercase">Inquiry Interface</span>
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-serif text-white mb-10 leading-snug font-bold">
+                  <h3 className="text-xl md:text-3xl font-serif text-white mb-8 md:mb-10 leading-snug font-bold">
                     {selectedSpot.quiz}
                   </h3>
-                  <div className="space-y-4 mt-auto">
+                  <div className="space-y-3 md:space-y-4 mt-auto">
                     {selectedSpot.options.map((option, idx) => (
                       <button
                         key={idx}
                         onClick={() => handleAnswer(idx)}
-                        className="w-full text-left bg-[#f5f5f0] hover:bg-white border-none p-6 text-[#020617] font-black text-xl transition-all flex justify-between items-center group shadow-lg"
+                        className="w-full text-left bg-[#f5f5f0] hover:bg-white border-none p-5 md:p-6 text-[#020617] font-black text-lg md:text-xl transition-all flex justify-between items-center group shadow-lg active:scale-95"
                       >
                         <span className="tracking-tight">{idx + 1}. {option}</span>
                         <span className="text-[#c5a059] opacity-0 group-hover:opacity-100 transition-opacity">→</span>
@@ -299,47 +297,52 @@ const TreasureHunt: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 정보 아카이브 섹션 */}
-                <div className="bg-[#112240]/40 p-10 border border-white/5 flex flex-col">
-                  <div className="flex items-center gap-3 mb-8">
-                    <span className="text-white/20 text-xs font-bold tracking-widest uppercase">Reference Archive</span>
+                {/* 정보 아카이브 섹션 (Digital Archive Record) */}
+                <div className="bg-[#112240]/40 p-8 md:p-10 border border-white/5 flex flex-col h-full overflow-hidden">
+                  <div className="flex items-center gap-3 mb-6 md:mb-8">
+                    <span className="text-white/20 text-[10px] md:text-xs font-bold tracking-widest uppercase">Digital Archive Record</span>
                   </div>
                   
                   {isLoading ? (
                     <div className="flex-grow flex flex-col items-center justify-center space-y-6">
-                      <div className="w-12 h-12 border-2 border-[#c5a059]/20 border-t-[#c5a059] rounded-full animate-spin"></div>
-                      <p className="text-[#c5a059] text-xs font-bold tracking-[0.3em] animate-pulse uppercase">Restoring Data...</p>
+                      <div className="w-10 h-10 md:w-12 md:h-12 border-2 border-[#c5a059]/20 border-t-[#c5a059] rounded-full animate-spin"></div>
+                      <p className="text-[#c5a059] text-[10px] md:text-xs font-bold tracking-[0.3em] animate-pulse uppercase">Restoring Data...</p>
                     </div>
                   ) : (
-                    <div className="flex-grow flex flex-col h-full">
-                      <div className="bg-[#0a192f]/50 p-6 border border-white/5 mb-8 flex-grow overflow-y-auto max-h-[220px] scroll-smooth">
-                        <div className="text-slate-300 text-lg md:text-xl leading-relaxed font-serif font-light whitespace-pre-line italic opacity-80">
+                    <div className="flex-grow flex flex-col overflow-hidden">
+                      {/* 독립적 스크롤 영역: Inquiry 영역과 높이가 맞게 고정됨 */}
+                      <div className="flex-grow bg-[#0a192f]/30 p-6 md:p-8 border border-white/5 overflow-y-auto scroll-smooth custom-scrollbar pr-4">
+                        <div className="text-slate-300 text-base md:text-xl leading-relaxed font-serif font-light whitespace-pre-line opacity-95">
                           {groundingInfo?.text || selectedSpot.history}
                         </div>
-                      </div>
-                      
-                      {groundingInfo?.links && groundingInfo.links.length > 0 && (
-                        <div className="space-y-3">
-                          <p className="text-[10px] font-bold text-[#c5a059]/60 uppercase tracking-widest px-1">Source Materials</p>
-                          <div className="grid grid-cols-1 gap-2">
-                            {groundingInfo.links.map((link, i) => (
-                              <a 
-                                key={i} 
-                                href={link.uri} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="group flex items-center justify-between bg-[#1e293b]/50 hover:bg-[#1e293b] p-4 border border-white/5 transition-all"
-                              >
-                                <div className="flex items-center gap-4 overflow-hidden">
-                                  <span className="text-[#c5a059]">🌐</span>
-                                  <p className="text-[11px] font-bold text-slate-300 truncate tracking-tight">{link.title}</p>
-                                </div>
-                                <span className="text-[#c5a059]/30 group-hover:text-[#c5a059] text-xs">↗</span>
-                              </a>
-                            ))}
+                        
+                        {groundingInfo?.links && groundingInfo.links.length > 0 && (
+                          <div className="mt-10 space-y-3">
+                            <p className="text-[10px] font-bold text-[#c5a059]/40 uppercase tracking-widest px-1">Evidence & Sources</p>
+                            <div className="grid grid-cols-1 gap-2">
+                              {groundingInfo.links.map((link, i) => (
+                                <a 
+                                  key={i} 
+                                  href={link.uri} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="group flex items-center justify-between bg-[#1e293b]/30 hover:bg-[#c5a059] p-3 md:p-4 border border-white/5 transition-all"
+                                >
+                                  <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                                    <span className="text-[#c5a059] group-hover:text-[#0a192f] transition-colors">🌐</span>
+                                    <p className="text-[10px] md:text-[11px] font-bold text-slate-300 group-hover:text-[#0a192f] truncate tracking-tight transition-colors">{link.title}</p>
+                                  </div>
+                                  <span className="text-[#c5a059]/30 group-hover:text-[#0a192f] text-xs transition-colors">↗</span>
+                                </a>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                      <div className="mt-4 flex items-center justify-between text-[8px] md:text-[9px] text-white/10 font-mono tracking-widest uppercase pt-2 border-t border-white/5">
+                        <span>Authentication: Record_Active</span>
+                        <span>Archive_Ref: P-7556-BUSAN</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -348,7 +351,7 @@ const TreasureHunt: React.FC = () => {
               <div className="pt-8 border-t border-white/10 flex justify-center">
                 <button 
                   onClick={() => setGameState('map')}
-                  className="text-white/20 hover:text-[#c5a059] text-xs font-bold tracking-[0.4em] transition-all uppercase"
+                  className="text-white/20 hover:text-[#c5a059] text-[10px] md:text-xs font-bold tracking-[0.4em] transition-all uppercase px-4 py-2 border border-transparent hover:border-[#c5a059]/20"
                 >
                   [ Return to Map Interface ]
                 </button>
@@ -358,7 +361,7 @@ const TreasureHunt: React.FC = () => {
 
           {gameState === 'finish' && (
             <div className="py-24 text-center space-y-12 fade-up">
-              <span className="text-[120px] block filter drop-shadow-[0_0_30px_rgba(197,160,89,0.5)]">🏺</span>
+              <span className="text-[100px] md:text-[120px] block filter drop-shadow-[0_0_30px_rgba(197,160,89,0.5)]">🏺</span>
               <div className="space-y-4">
                 <h2 className="text-4xl md:text-6xl font-serif font-black text-white tracking-tighter">아카이브 복원 완료</h2>
                 <p className="text-[#c5a059] text-sm md:text-base tracking-[0.4em] font-medium uppercase">All Historical Fragments Recovered</p>
