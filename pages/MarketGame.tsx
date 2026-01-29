@@ -207,11 +207,11 @@ const TreasureHunt: React.FC = () => {
                 <span className="absolute -top-4 -right-12 bg-[#c5a059] text-[#0a192f] text-[10px] px-3 py-1 font-bold tracking-[0.2em] uppercase">Digital Archive</span>
               </div>
               <div className="space-y-4">
-                <h1 className="text-4xl md:text-6xl font-serif font-black text-white tracking-tighter">부산 지리 기록 탐험</h1>
-                <p className="text-[#c5a059] text-sm md:text-base tracking-[0.3em] font-medium uppercase">Explore the Geography of Memories</p>
+                <h1 className="text-4xl md:text-6xl font-serif font-black text-white tracking-tighter">부기와 탐험</h1>
+                <p className="text-[#c5a059] text-sm md:text-base tracking-[0.3em] font-medium uppercase">Explore with Boogi</p>
               </div>
               <p className="text-slate-400 leading-relaxed max-w-xl mx-auto text-lg font-light">
-                부산의 주요 거점에 새겨진 역사적 흔적을 추적합니다.<br/>
+                부기와 함께 부산의 주요 거점에 새겨진 역사적 흔적을 추적합니다.<br/>
                 실제 지도를 탐색하며 5개의 흩어진 기록물을 수집해 보십시오.
               </p>
               <button 
@@ -228,7 +228,7 @@ const TreasureHunt: React.FC = () => {
               <header className="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-white/10 pb-8">
                 <div>
                   <h2 className="text-2xl font-serif text-white flex items-center gap-3">
-                    <span className="text-[#c5a059]">📍</span> 실시간 기록 지도
+                    <span className="text-[#c5a059]">📍</span> 부기의 실시간 기록 지도
                   </h2>
                   <p className="text-xs text-[#c5a059]/60 tracking-widest mt-1 uppercase">Select a point of interest on the map</p>
                 </div>
@@ -250,7 +250,7 @@ const TreasureHunt: React.FC = () => {
               <div className="relative w-full aspect-[21/9] bg-[#0a192f] border border-white/5 min-h-[450px]">
                 <div ref={mapContainerRef} className="w-full h-full opacity-100 transition-opacity" id="map"></div>
                 <div className="absolute top-6 left-6 z-[20] bg-white/80 backdrop-blur-md p-4 border border-black/10 text-black/40 text-[10px] tracking-widest uppercase font-mono pointer-events-none">
-                  SYSTEM ACTIVE: LAT_LNG_RADAR
+                  SYSTEM ACTIVE: BOOGI_RADAR_SCAN
                 </div>
               </div>
             </div>
@@ -363,7 +363,7 @@ const TreasureHunt: React.FC = () => {
             <div className="py-24 text-center space-y-12 fade-up">
               <span className="text-[100px] md:text-[120px] block filter drop-shadow-[0_0_30px_rgba(197,160,89,0.5)]">🏺</span>
               <div className="space-y-4">
-                <h2 className="text-4xl md:text-6xl font-serif font-black text-white tracking-tighter">아카이브 복원 완료</h2>
+                <h2 className="text-4xl md:text-6xl font-serif font-black text-white tracking-tighter">부기와 탐험 완료</h2>
                 <p className="text-[#c5a059] text-sm md:text-base tracking-[0.4em] font-medium uppercase">All Historical Fragments Recovered</p>
               </div>
               <div className="bg-[#0a192f]/50 p-12 border border-[#c5a059]/20 max-w-2xl mx-auto shadow-2xl">

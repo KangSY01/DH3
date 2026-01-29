@@ -45,7 +45,6 @@ export class GeminiService {
       });
 
       const text = response.text || "";
-      // Search Grounding 결과에서 웹 URL 추출 (MUST ALWAYS)
       const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
       const links = chunks
         .filter(chunk => chunk.web)
@@ -62,25 +61,16 @@ export class GeminiService {
     }
   }
 
-  // 기존 Maps Grounding 함수 (필요 시 유지)
+  // Maps Grounding 함수: 권한 요청 없이 부산 중심 좌표를 사용하도록 수정
   async getPlaceGrounding(placeName: string) {
     try {
       const ai = this.getClient();
-      let lat = 35.1796;
-      let lng = 129.0756;
-
-      if (navigator.geolocation) {
-        const pos = await new Promise<GeolocationPosition>((res, rej) => 
-          navigator.geolocation.getCurrentPosition(res, rej)
-        ).catch(() => null);
-        if (pos) {
-          lat = pos.coords.latitude;
-          lng = pos.coords.longitude;
-        }
-      }
+      // 브라우저 권한 팝업을 피하기 위해 부산 시청 인근의 고정 좌표 사용
+      const lat = 35.1796;
+      const lng = 129.0756;
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-flash-preview",
         contents: `${placeName}에 대한 최신 정보와 역사적 의미를 알려줘.`,
         config: {
           tools: [{ googleMaps: {} }],
